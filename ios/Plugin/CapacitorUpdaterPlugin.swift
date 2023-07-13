@@ -674,4 +674,28 @@ public class CapacitorUpdaterPlugin: CAPPlugin {
         }
 
     }
+
+    @objc func syncDefault(_ call: CAPPluginCall) {
+        let value = call.getString("value") ?? ""
+        //need to add logic to trigger this only when it is not copied initially and add entry to bundle
+        // should be copied to snapshot folder too
+        let res = self.implementation.syncDefault(folderName: "public", dest: "versions/default")
+        call.resolve([
+            "value": value,
+            "res": res
+        ])
+    }
+
+    @objc func copyAssets(_ call: CAPPluginCall) {
+        let value = call.getString("value") ?? ""
+        let value = call.getString("value") ?? ""
+        let value = call.getString("value") ?? ""
+        //need to add logic to trigger this only when it is not copied initially and add entry to bundle
+        // should be copied to snapshot folder too
+        let res = self.implementation.copyAssets(folderName: "public", dest: "versions/default")
+        call.resolve([
+            "value": value,
+            "res": res
+        ])
+    }
 }

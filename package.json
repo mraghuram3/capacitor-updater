@@ -1,6 +1,6 @@
 {
-  "name": "@capgo/capacitor-updater",
-  "version": "5.0.1",
+  "name": "cap-updater",
+  "version": "5.0.1-beta.1",
   "packageManager": "pnpm@8.6.2",
   "license": "MPL-2.0",
   "description": "Live update for capacitor apps",
@@ -13,7 +13,7 @@
     "android/build.gradle",
     "dist/",
     "ios/Plugin/",
-    "CapgoCapacitorUpdater.podspec"
+    "CapUpdater.podspec"
   ],
   "author": "Martin Donadieu",
   "repository": {

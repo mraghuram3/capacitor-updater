@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
@@ -36,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -1127,4 +1129,94 @@ public class CapacitorUpdater {
     this.editor.commit();
     return true;
   }
+
+  public boolean syncDefault(AssetManager assetManager,
+          String fromAssetPath, String toPath) {
+    copyFolderFromAssets(assetManager, fromAssetPath, toPath);
+    return true;
+  }
+
+  private boolean isDirectory(AssetManager assetManager, String filePath) {
+      try {
+          InputStream inputStream = assetManager.open(filePath);
+          inputStream.close();
+          return false;
+      } catch (IOException e) {
+          return true;
+      }
+  }
+
+  private void copyAssetFile(AssetManager assetManager, String sourceFilePath, String destinationFilePath) throws IOException {
+      InputStream inputStream = assetManager.open(sourceFilePath);
+      OutputStream outputStream = new FileOutputStream(destinationFilePath);
+
+      byte[] buffer = new byte[4096];
+      int bytesRead;
+      while ((bytesRead = inputStream.read(buffer)) != -1) {
+          outputStream.write(buffer, 0, bytesRead);
+      }
+
+      outputStream.flush();
+      outputStream.close();
+      inputStream.close();
+  }
+
+
+  private void copyFolderFromAssets(AssetManager assetManager, String sourceFolder, String destinationFolder) {
+      try {
+          String[] files = assetManager.list(sourceFolder);
+          if (files != null && files.length > 0) {
+              // Create the destination folder if it doesn't exist
+              File destinationDir = new File(this.documentsDir,destinationFolder);
+              if (!destinationDir.exists()) {
+                  destinationDir.mkdirs();
+              }
+              for (String fileName : files) {
+                  String sourceFilePath = sourceFolder + "/" + fileName;
+                  String destinationFilePath = destinationFolder + "/" + fileName;
+                  if (isDirectory(assetManager, sourceFilePath)) {
+                      // Recursive call to copy subfolder
+                      copyFolderFromAssets(assetManager, sourceFilePath, destinationFilePath);
+                  } else {
+                      // Copy file
+                      copyAssetFile(assetManager, sourceFilePath, destinationFilePath);
+                  }
+              }
+          }
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+  }
+
+  private void copyAssets(String sourceFolder, String destinationFolder) {
+        File source = new File(this.documentsDir,sourceFolder);
+        File destination = new File(this.documentsDir,destinationFolder);
+        copyDirectory(source, destination);
+  }
+
+  private void copyDirectory(File sourceDir, File destDir) throws IOException {
+      if (sourceDir.isDirectory()) {
+          if (!destDir.exists()) {
+              destDir.mkdirs();
+          }
+
+          String[] children = sourceDir.list();
+          for (String child : children) {
+              copyDirectory(new File(sourceDir, child), new File(destDir, child));
+          }
+      } else {
+          InputStream in = new FileInputStream(sourceDir);
+          OutputStream out = new FileOutputStream(destDir);
+
+          byte[] buffer = new byte[1024];
+          int length;
+          while ((length = in.read(buffer)) > 0) {
+              out.write(buffer, 0, length);
+          }
+
+          in.close();
+          out.close();
+      }
+  }
+
 }

@@ -855,4 +855,35 @@ extension CustomError: LocalizedError {
         self.setBundleStatus(id: nextId, status: BundleStatus.PENDING)
         return true
     }
+
+    public func syncDefault(folderName: String, dest: String) -> Bool {
+        guard let sourceFolderPath = Bundle.main.path(forResource: folderName, ofType: nil) else {
+            return false// Folder not found in the bundle
+        }
+        let destinationFolderURL =self.documentsDir.appendingPathComponent(dest);
+        do {
+            try FileManager.default.copyItem(atPath: sourceFolderPath, toPath: destinationFolderURL.path)
+            print("Folder and its contents copied successfully")
+            return true
+        } catch {
+            // Handle the error if the copy operation fails
+            print("Error: \(error.localizedDescription)")
+            return false
+        }
+    }
+    
+    public func copyAssets(source: String, dest: String) -> Bool {
+        let sourceFolderURL = self.documentsDir.appendingPathComponent(source);
+        let destinationFolderURL = self.documentsDir.appendingPathComponent(dest);
+        let destinationFolderHotURL = self.libraryDir.appendingPathComponent(dest);
+        do {
+            try FileManager.default.copyItem(atPath: sourceFolderURL, toPath: destinationFolderURL.path)
+            print("Folder and its contents copied successfully")
+            return true
+        } catch {
+            // Handle the error if the copy operation fails
+            print("Error: \(error.localizedDescription)")
+            return false
+        }
+    }
 }

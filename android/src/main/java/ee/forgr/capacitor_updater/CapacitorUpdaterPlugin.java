@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -77,6 +78,8 @@ public class CapacitorUpdaterPlugin
 
   private volatile Thread appReadyCheck;
 
+  public AssetManager packageAssetManager;
+
   @Override
   public void load() {
     super.load();
@@ -101,6 +104,7 @@ public class CapacitorUpdaterPlugin
             CapacitorUpdaterPlugin.this.notifyListeners(id, res);
           }
         };
+      packageAssetManager = this.getContext().getAssets();
       final PackageInfo pInfo =
         this.getContext()
           .getPackageManager()
@@ -344,6 +348,7 @@ public class CapacitorUpdaterPlugin
     final String version = call.getString("version");
     final String sessionKey = call.getString("sessionKey", "");
     final String checksum = call.getString("checksum", "");
+    final String folderName = call.getString("folderName", "");
     if (url == null) {
       Log.e(CapacitorUpdater.TAG, "Download called without url");
       call.reject("Download called without url");
@@ -366,7 +371,8 @@ public class CapacitorUpdaterPlugin
                     url,
                     version,
                     sessionKey,
-                    checksum
+                    checksum,
+                    folderName
                   );
 
               call.resolve(downloaded.toJSON());
@@ -1307,4 +1313,50 @@ public class CapacitorUpdaterPlugin
       this.appKilled();
     }
   }
+
+  @PluginMethod
+  public void syncDefault(final PluginCall call) {
+    //need to add logic to trigger this only when it is not copied initially and add entry to bundle
+    // should be copied to snapshot folder too
+    try {
+      final String appId = this.getConfig().getString("appId");
+      final String toPath = "versions/default";
+      this.implementation.syncDefault(
+              packageAssetManager,
+            "public",
+            toPath);
+      final JSObject ret = new JSObject();
+      ret.put("status", "copied assets");
+      call.resolve(ret);
+    } catch (final Exception e) {
+      Log.e(CapacitorUpdater.TAG, "could not copy assetss", e);
+      call.reject("could not copy assetss", e);
+    }
+  }
+
+  @PluginMethod
+  public void copyAssets(final PluginCall call) {
+    final String fromFolder = call.getString("fromFolder"); // from bundle id
+    final String toFolder = call.getString("toFolder"); // to bunde id
+    final String folders = call.getString("folders"); // fodlers to copy
+    ArrayList<String> folderList = new ArrayList<>(Arrays.asList(folders.split(","));
+
+    final String appId = this.getConfig().getString("appId");
+    final String verDirectory = "versions/";
+
+    try {
+      for(int i = 0; i < folderList.size(); i++)
+      {
+          //System.out.println(folderList.get(i));
+          //folderList.get(i)
+      }
+      final JSObject ret = new JSObject();
+      ret.put("status", "copied assets");
+      call.resolve(ret);
+    } catch (final Exception e) {
+      Log.e(CapacitorUpdater.TAG, "could not copy assetss", e);
+      call.reject("could not copy assetss", e);
+    }
+  }
+
 }
