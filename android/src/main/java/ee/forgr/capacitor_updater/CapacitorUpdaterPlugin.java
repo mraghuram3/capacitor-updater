@@ -37,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -371,8 +372,7 @@ public class CapacitorUpdaterPlugin
                     url,
                     version,
                     sessionKey,
-                    checksum,
-                    folderName
+                    checksum
                   );
 
               call.resolve(downloaded.toJSON());
@@ -1339,7 +1339,7 @@ public class CapacitorUpdaterPlugin
     final String fromFolder = call.getString("fromFolder"); // from bundle id
     final String toFolder = call.getString("toFolder"); // to bunde id
     final String folders = call.getString("folders"); // fodlers to copy
-    ArrayList<String> folderList = new ArrayList<>(Arrays.asList(folders.split(","));
+    ArrayList<String> folderList = new ArrayList<>(Arrays.asList(folders.split(",")));
 
     final String appId = this.getConfig().getString("appId");
     final String verDirectory = "versions/";
@@ -1349,6 +1349,7 @@ public class CapacitorUpdaterPlugin
       {
           //System.out.println(folderList.get(i));
           //folderList.get(i)
+          this.implementation.copyAssets(fromFolder + "/" + folderList.get(i), toFolder + "/" + folderList.get(i));
       }
       final JSObject ret = new JSObject();
       ret.put("status", "copied assets");

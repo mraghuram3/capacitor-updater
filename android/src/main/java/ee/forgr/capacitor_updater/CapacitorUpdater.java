@@ -1130,10 +1130,27 @@ public class CapacitorUpdater {
     return true;
   }
 
+  // to sync default asets from bundled to a fodler named default 
   public boolean syncDefault(AssetManager assetManager,
           String fromAssetPath, String toPath) {
-    copyFolderFromAssets(assetManager, fromAssetPath, toPath);
-    return true;
+    // check if default bundle is present
+    final BundleInfo defaultBundle = this.getBundleInfoByName("default");
+    Log.d(TAG, "retrived default bundle" + defaultBundle);
+    if (defaultBundle == null) {
+      try{
+        // Do something
+        copyFolderFromAssets(assetManager, fromAssetPath, toPath);
+        //
+        BundleInfo info = this.getBundleInfo("default");
+        final BundleInfo update = info.setId("default");
+        Log.d(TAG, "Storing info for bundle [default] " + update.toString());
+        this.editor.putString("default" + INFO_SUFFIX, update.toString());
+        return true;
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+    }
+    return false;
   }
 
   private boolean isDirectory(AssetManager assetManager, String filePath) {
@@ -1188,10 +1205,15 @@ public class CapacitorUpdater {
       }
   }
 
-  private void copyAssets(String sourceFolder, String destinationFolder) {
+  // methods for copyAssets methods from main file
+  public void copyAssets(String sourceFolder, String destinationFolder) {
         File source = new File(this.documentsDir,sourceFolder);
         File destination = new File(this.documentsDir,destinationFolder);
-        copyDirectory(source, destination);
+        try{
+          copyDirectory(source, destination);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
   }
 
   private void copyDirectory(File sourceDir, File destDir) throws IOException {
