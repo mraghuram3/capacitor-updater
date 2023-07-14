@@ -1313,26 +1313,6 @@ public class CapacitorUpdaterPlugin
     }
   }
 
-  @PluginMethod
-  public void syncDefault(final PluginCall call) {
-    //need to add logic to trigger this only when it is not copied initially and add entry to bundle
-    // should be copied to snapshot folder too
-    try {
-      final String appId = this.getConfig().getString("appId");
-      final String toPath = "versions/default";
-      this.implementation.syncDefault(
-              packageAssetManager,
-            "public",
-            toPath);
-      final JSObject ret = new JSObject();
-      ret.put("status", "copied assets");
-      call.resolve(ret);
-    } catch (final Exception e) {
-      Log.e(CapacitorUpdater.TAG, "could not copy assetss", e);
-      call.reject("could not copy assetss", e);
-    }
-  }
-
   // used to copy missing assets from previous version to new version
   // we must delete the folder with same name in the destination to copy effectively or will clud the contents from previous  and current together
   @PluginMethod
@@ -1341,6 +1321,7 @@ public class CapacitorUpdaterPlugin
     final String toFolder = call.getString("toFolder"); // to bunde id
     final String folders = call.getString("folders"); // fodlers to copy
     ArrayList<String> folderList = new ArrayList<>(Arrays.asList(folders.split(",")));
+    final Boolean isBuitIn = fromFolder.equals("builtin");
 
     final String appId = this.getConfig().getString("appId");
     final String verDirectory = "versions/";
@@ -1348,7 +1329,14 @@ public class CapacitorUpdaterPlugin
     try {
       for(int i = 0; i < folderList.size(); i++)
       {
-          this.implementation.copyAssets( verDirectory + fromFolder + "/" + folderList.get(i), verDirectory + toFolder + "/" + folderList.get(i));
+        final String toFolderPath = verDirectory + toFolder + "/" + folderList.get(i);
+        if (isBuitIn) {
+          final String fromFolderPath = "public/" + folderList.get(i);
+          this.implementation.copyFolderFromAssets(packageAssetManager, fromFolderPath, toFolderPath );
+        } else {
+          final String fromFolderPath = verDirectory + fromFolder + "/" + folderList.get(i);
+          this.implementation.copyAssets(fromFolderPath, toFolderPath);
+        }
       }
       final JSObject ret = new JSObject();
       ret.put("status", "copied assets");

@@ -675,17 +675,6 @@ public class CapacitorUpdaterPlugin: CAPPlugin {
 
     }
 
-    @objc func syncDefault(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
-        //need to add logic to trigger this only when it is not copied initially and add entry to bundle
-        // should be copied to snapshot folder too
-        let res = self.implementation.syncDefault(folderName: "public", dest: "versions/default")
-        call.resolve([
-            "value": value,
-            "res": res
-        ])
-    }
-
     // used to copy missing assets from previous version to new version
     // we must delete the folder with same name in the destination to copy effectively or copy will fail
     @objc func copyAssets(_ call: CAPPluginCall) {
@@ -693,11 +682,12 @@ public class CapacitorUpdaterPlugin: CAPPlugin {
         let toFolder = call.getString("toFolder") ?? ""
         let folders = call.getString("folders") ?? ""
         let allFolders = folders.components(separatedBy: ",")
+        let isBuitIn = fromFolder == "builtin"
         var res = false;
         for _folder in allFolders {
-            let _fromFolder = fromFolder + "/" + _folder;
+            let _fromFolder = (isBuitIn ? "public" : fromFolder ) + "/" + _folder;
             let _toFolder = toFolder + "/" + _folder;
-            res = self.implementation.copyAssets(fromFolder: _fromFolder, toFolder: _toFolder)
+            res = self.implementation.copyAssets(fromFolder: _fromFolder, toFolder: _toFolder, isBuitIn: isBuitIn)
         }
         call.resolve([
             "res": res

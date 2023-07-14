@@ -1130,77 +1130,6 @@ public class CapacitorUpdater {
     return true;
   }
 
-  // to sync default asets from bundled to a fodler named default 
-  public boolean syncDefault(AssetManager assetManager,
-          String fromAssetPath, String toPath) {
-    // check if default bundle is present
-    final BundleInfo defaultBundle = this.getBundleInfoByName("default");
-    Log.d(TAG, "retrived default bundle" + defaultBundle);
-    if (defaultBundle == null) {
-        // Do something
-        copyFolderFromAssets(assetManager, fromAssetPath, toPath);
-        //
-        BundleInfo info = this.getBundleInfo("default");
-        final BundleInfo update = info.setId("default");
-        Log.d(TAG, "Storing info for bundle [default] " + update.toString());
-        this.editor.putString("default" + INFO_SUFFIX, update.toString());
-        return true;
-    }
-    return false;
-  }
-
-  private boolean isDirectory(AssetManager assetManager, String filePath) {
-      try {
-          InputStream inputStream = assetManager.open(filePath);
-          inputStream.close();
-          return false;
-      } catch (IOException e) {
-          return true;
-      }
-  }
-
-  private void copyAssetFile(AssetManager assetManager, String sourceFilePath, String destinationFilePath) throws IOException {
-      InputStream inputStream = assetManager.open(sourceFilePath);
-      OutputStream outputStream = new FileOutputStream(destinationFilePath);
-
-      byte[] buffer = new byte[4096];
-      int bytesRead;
-      while ((bytesRead = inputStream.read(buffer)) != -1) {
-          outputStream.write(buffer, 0, bytesRead);
-      }
-
-      outputStream.flush();
-      outputStream.close();
-      inputStream.close();
-  }
-
-
-  private void copyFolderFromAssets(AssetManager assetManager, String sourceFolder, String destinationFolder) {
-      try {
-          String[] files = assetManager.list(sourceFolder);
-          if (files != null && files.length > 0) {
-              // Create the destination folder if it doesn't exist
-              File destinationDir = new File(this.documentsDir,destinationFolder);
-              if (!destinationDir.exists()) {
-                  destinationDir.mkdirs();
-              }
-              for (String fileName : files) {
-                  String sourceFilePath = sourceFolder + "/" + fileName;
-                  String destinationFilePath = destinationFolder + "/" + fileName;
-                  if (isDirectory(assetManager, sourceFilePath)) {
-                      // Recursive call to copy subfolder
-                      copyFolderFromAssets(assetManager, sourceFilePath, destinationFilePath);
-                  } else {
-                      // Copy file
-                      copyAssetFile(assetManager, sourceFilePath, destinationFilePath);
-                  }
-              }
-          }
-      } catch (IOException e) {
-          e.printStackTrace();
-      }
-  }
-
   // methods for copyAssets methods from main file
   public void copyAssets(String sourceFolder, String destinationFolder) {
         File source = new File(this.documentsDir,sourceFolder);
@@ -1235,6 +1164,64 @@ public class CapacitorUpdater {
           in.close();
           out.close();
       }
+  }
+
+  public void copyFolderFromAssets(AssetManager assetManager, String sourceFolder, String destinationFolder) {
+      Log.i(TAG, "sourceFolder" + sourceFolder);
+      Log.i(TAG, "destinationFolder" + destinationFolder);
+      try {
+          String[] files = assetManager.list(sourceFolder);
+          if (files != null && files.length > 0) {
+              // Create the destination folder if it doesn't exist
+              File destinationDir = new File(this.documentsDir,destinationFolder);
+              if (!destinationDir.exists()) {
+                  destinationDir.mkdirs();
+              }
+              for (String fileName : files) {
+                  String sourceFilePath = sourceFolder + "/" + fileName;
+                  String destinationFilePath = destinationFolder + "/" + fileName;
+                  Log.i(TAG, "sourceFolder" + sourceFilePath);
+                  Log.i(TAG, "sourceFolder" + destinationFilePath);
+                  if (isDirectory(assetManager, sourceFilePath)) {
+                      // Recursive call to copy subfolder
+                      copyFolderFromAssets(assetManager, sourceFilePath, destinationFilePath);
+                  } else {
+                      // Copy file
+                      copyAssetFile(assetManager, sourceFilePath, destinationFilePath);
+                  }
+              }
+          }
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+  }
+
+  private boolean isDirectory(AssetManager assetManager, String filePath) {
+      try {
+          InputStream inputStream = assetManager.open(filePath);
+          inputStream.close();
+          return false;
+      } catch (IOException e) {
+          return true;
+      }
+  }
+
+  private void copyAssetFile(AssetManager assetManager, String sourceFilePath, String destinationFilePath) throws IOException {
+      Log.i(TAG, "sourceFilePath" + sourceFilePath);
+      Log.i(TAG, "destinationFilePath" + destinationFilePath);
+      File destinationFileFullPath = new File(this.documentsDir,destinationFilePath);
+      InputStream inputStream = assetManager.open(sourceFilePath);
+      OutputStream outputStream = new FileOutputStream(destinationFileFullPath);
+
+      byte[] buffer = new byte[4096];
+      int bytesRead;
+      while ((bytesRead = inputStream.read(buffer)) != -1) {
+          outputStream.write(buffer, 0, bytesRead);
+      }
+
+      outputStream.flush();
+      outputStream.close();
+      inputStream.close();
   }
 
 }
