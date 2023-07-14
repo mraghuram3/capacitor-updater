@@ -1137,7 +1137,6 @@ public class CapacitorUpdater {
     final BundleInfo defaultBundle = this.getBundleInfoByName("default");
     Log.d(TAG, "retrived default bundle" + defaultBundle);
     if (defaultBundle == null) {
-      try{
         // Do something
         copyFolderFromAssets(assetManager, fromAssetPath, toPath);
         //
@@ -1146,9 +1145,6 @@ public class CapacitorUpdater {
         Log.d(TAG, "Storing info for bundle [default] " + update.toString());
         this.editor.putString("default" + INFO_SUFFIX, update.toString());
         return true;
-      } catch (IOException e) {
-          e.printStackTrace();
-      }
     }
     return false;
   }

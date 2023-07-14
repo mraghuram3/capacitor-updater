@@ -349,7 +349,6 @@ public class CapacitorUpdaterPlugin
     final String version = call.getString("version");
     final String sessionKey = call.getString("sessionKey", "");
     final String checksum = call.getString("checksum", "");
-    final String folderName = call.getString("folderName", "");
     if (url == null) {
       Log.e(CapacitorUpdater.TAG, "Download called without url");
       call.reject("Download called without url");
