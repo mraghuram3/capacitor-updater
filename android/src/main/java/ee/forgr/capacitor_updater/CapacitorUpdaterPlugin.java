@@ -1333,6 +1333,8 @@ public class CapacitorUpdaterPlugin
     }
   }
 
+  // used to copy missing assets from previous version to new version
+  // we must delete the folder with same name in the destination to copy effectively or will clud the contents from previous  and current together
   @PluginMethod
   public void copyAssets(final PluginCall call) {
     final String fromFolder = call.getString("fromFolder"); // from bundle id
@@ -1346,9 +1348,7 @@ public class CapacitorUpdaterPlugin
     try {
       for(int i = 0; i < folderList.size(); i++)
       {
-          //System.out.println(folderList.get(i));
-          //folderList.get(i)
-          this.implementation.copyAssets(fromFolder + "/" + folderList.get(i), toFolder + "/" + folderList.get(i));
+          this.implementation.copyAssets( verDirectory + fromFolder + "/" + folderList.get(i), verDirectory + toFolder + "/" + folderList.get(i));
       }
       final JSObject ret = new JSObject();
       ret.put("status", "copied assets");

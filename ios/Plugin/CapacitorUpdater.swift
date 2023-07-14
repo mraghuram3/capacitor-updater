@@ -860,7 +860,7 @@ extension CustomError: LocalizedError {
         guard let sourceFolderPath = Bundle.main.path(forResource: folderName, ofType: nil) else {
             return false// Folder not found in the bundle
         }
-        let destinationFolderURL =self.documentsDir.appendingPathComponent(dest);
+        let destinationFolderURL = self.documentsDir.appendingPathComponent(dest);
         do {
             try FileManager.default.copyItem(atPath: sourceFolderPath, toPath: destinationFolderURL.path)
             print("Folder and its contents copied successfully")
@@ -872,18 +872,27 @@ extension CustomError: LocalizedError {
         }
     }
     
-    public func copyAssets(source: String, dest: String) -> Bool {
-        let sourceFolderURL = self.documentsDir.appendingPathComponent(source);
-        let destinationFolderURL = self.documentsDir.appendingPathComponent(dest);
-        let destinationFolderHotURL = self.libraryDir.appendingPathComponent(dest);
+    public func copyAssets(fromFolder: String, toFolder: String) -> Bool {
+        let sourceFolderURL = self.documentsDir.appendingPathComponent("versions/" + fromFolder);
+        let destinationFolderURL = self.documentsDir.appendingPathComponent("versions/" + toFolder);
+        let destinationFolderHotURL = self.libraryDir.appendingPathComponent("NoCloud/ionic_built_snapshots/" + toFolder + "/");
+        print("Error: \(sourceFolderURL)")
+        print("Error: \(destinationFolderURL)")
+        print("Error: \(destinationFolderHotURL)")
         do {
-            try FileManager.default.copyItem(atPath: sourceFolderURL, toPath: destinationFolderURL.path)
+            try FileManager.default.copyItem(atPath: sourceFolderURL.path, toPath: destinationFolderURL.path)
             print("Folder and its contents copied successfully")
-            return true
         } catch {
             // Handle the error if the copy operation fails
             print("Error: \(error.localizedDescription)")
-            return false
         }
+        do {
+            try FileManager.default.copyItem(atPath: sourceFolderURL.path, toPath: destinationFolderHotURL.path)
+            print("Folder and its contents copied successfully")
+        } catch {
+            // Handle the error if the copy operation fails
+            print("Error: \(error.localizedDescription)")
+        }
+        return false
     }
 }
