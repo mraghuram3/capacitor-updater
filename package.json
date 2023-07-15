@@ -1,6 +1,6 @@
 {
   "name": "cap-updater",
-  "version": "5.0.1-beta.1",
+  "version": "5.0.1-beta.2",
   "packageManager": "pnpm@8.6.2",
   "license": "MPL-2.0",
   "description": "Live update for capacitor apps",
