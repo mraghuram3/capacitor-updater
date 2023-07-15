@@ -93,6 +93,12 @@ public class CapacitorUpdater {
   public String privateKey = "";
   public String deviceID = "";
 
+  public AssetManager packageAssetManager;
+
+  public CapacitorUpdater(Context context) {
+    this.packageAssetManager = context.getAssets();
+  }
+
   private final FilenameFilter filter = new FilenameFilter() {
     @Override
     public boolean accept(final File f, final String name) {
@@ -1166,11 +1172,11 @@ public class CapacitorUpdater {
       }
   }
 
-  public void copyFolderFromAssets(AssetManager assetManager, String sourceFolder, String destinationFolder) {
+  public void copyFolderFromAssets(String sourceFolder, String destinationFolder) {
       Log.i(TAG, "sourceFolder" + sourceFolder);
       Log.i(TAG, "destinationFolder" + destinationFolder);
       try {
-          String[] files = assetManager.list(sourceFolder);
+          String[] files = this.packageAssetManager.list(sourceFolder);
           if (files != null && files.length > 0) {
               // Create the destination folder if it doesn't exist
               File destinationDir = new File(this.documentsDir,destinationFolder);
@@ -1182,12 +1188,12 @@ public class CapacitorUpdater {
                   String destinationFilePath = destinationFolder + "/" + fileName;
                   Log.i(TAG, "sourceFolder" + sourceFilePath);
                   Log.i(TAG, "sourceFolder" + destinationFilePath);
-                  if (isDirectory(assetManager, sourceFilePath)) {
+                  if (isDirectory(sourceFilePath)) {
                       // Recursive call to copy subfolder
-                      copyFolderFromAssets(assetManager, sourceFilePath, destinationFilePath);
+                      copyFolderFromAssets(sourceFilePath, destinationFilePath);
                   } else {
                       // Copy file
-                      copyAssetFile(assetManager, sourceFilePath, destinationFilePath);
+                      copyAssetFile(sourceFilePath, destinationFilePath);
                   }
               }
           }
@@ -1196,9 +1202,9 @@ public class CapacitorUpdater {
       }
   }
 
-  private boolean isDirectory(AssetManager assetManager, String filePath) {
+  private boolean isDirectory(String filePath) {
       try {
-          InputStream inputStream = assetManager.open(filePath);
+          InputStream inputStream = this.packageAssetManager.open(filePath);
           inputStream.close();
           return false;
       } catch (IOException e) {
@@ -1206,11 +1212,11 @@ public class CapacitorUpdater {
       }
   }
 
-  private void copyAssetFile(AssetManager assetManager, String sourceFilePath, String destinationFilePath) throws IOException {
-      Log.i(TAG, "sourceFilePath" + sourceFilePath);
-      Log.i(TAG, "destinationFilePath" + destinationFilePath);
+  private void copyAssetFile(String sourceFilePath, String destinationFilePath) throws IOException {
+      Log.i(TAG, "sourceFilePath :" + sourceFilePath);
+      Log.i(TAG, "destinationFilePath :" + destinationFilePath);
       File destinationFileFullPath = new File(this.documentsDir,destinationFilePath);
-      InputStream inputStream = assetManager.open(sourceFilePath);
+      InputStream inputStream = this.packageAssetManager.open(sourceFilePath);
       OutputStream outputStream = new FileOutputStream(destinationFileFullPath);
 
       byte[] buffer = new byte[4096];

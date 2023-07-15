@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,8 +78,6 @@ public class CapacitorUpdaterPlugin
 
   private volatile Thread appReadyCheck;
 
-  public AssetManager packageAssetManager;
-
   @Override
   public void load() {
     super.load();
@@ -94,7 +91,7 @@ public class CapacitorUpdaterPlugin
 
     try {
       this.implementation =
-        new CapacitorUpdater() {
+        new CapacitorUpdater(this.getContext()) {
           @Override
           public void notifyDownload(final String id, final int percent) {
             CapacitorUpdaterPlugin.this.notifyDownload(id, percent);
@@ -105,7 +102,6 @@ public class CapacitorUpdaterPlugin
             CapacitorUpdaterPlugin.this.notifyListeners(id, res);
           }
         };
-      packageAssetManager = this.getContext().getAssets();
       final PackageInfo pInfo =
         this.getContext()
           .getPackageManager()
@@ -1332,7 +1328,7 @@ public class CapacitorUpdaterPlugin
         final String toFolderPath = verDirectory + toFolder + "/" + folderList.get(i);
         if (isBuitIn) {
           final String fromFolderPath = "public/" + folderList.get(i);
-          this.implementation.copyFolderFromAssets(packageAssetManager, fromFolderPath, toFolderPath );
+          this.implementation.copyFolderFromAssets(fromFolderPath, toFolderPath );
         } else {
           final String fromFolderPath = verDirectory + fromFolder + "/" + folderList.get(i);
           this.implementation.copyAssets(fromFolderPath, toFolderPath);
