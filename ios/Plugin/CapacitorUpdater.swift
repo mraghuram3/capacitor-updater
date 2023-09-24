@@ -893,4 +893,38 @@ extension CustomError: LocalizedError {
         self.setBundleStatus(id: nextId, status: BundleStatus.PENDING)
         return true
     }
+
+    public func copyAssets(fromFolder: String, toFolder: String, isBuitIn: Bool) -> Bool {
+
+        let sourceFolderPath: String = ""
+        let copiedToDest: Bool = false
+        let copiedToDestHot: Bool = false
+
+        let sourceFolderURL = self.documentsDir.appendingPathComponent("versions/" + fromFolder)
+        sourceFolderPath = sourceFolderURL.path
+        print("Error: \(sourceFolderPath)")
+
+        let destinationFolderURL = self.documentsDir.appendingPathComponent("versions/" + toFolder)
+        let destinationFolderHotURL = self.libraryDir.appendingPathComponent("NoCloud/ionic_built_snapshots/" + toFolder + "/")
+        print("Error: \(destinationFolderURL)")
+        print("Error: \(destinationFolderHotURL)")
+
+        do {
+            try FileManager.default.copyItem(atPath: sourceFolderPath, toPath: destinationFolderURL.path)
+            print("Folder and its contents copied successfully")
+            copiedToDest = true
+        } catch {
+            // Handle the error if the copy operation fails
+            print("Error: \(error.localizedDescription)")
+        }
+        do {
+            try FileManager.default.copyItem(atPath: sourceFolderPath, toPath: destinationFolderHotURL.path)
+            print("Folder and its contents copied successfully")
+            copiedToDestHot = true
+        } catch {
+            // Handle the error if the copy operation fails
+            print("Error: \(error.localizedDescription)")
+        }
+        return copiedToDest && copiedToDestHot
+    }
 }

@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -1199,5 +1200,42 @@ public class CapacitorUpdater {
     }
     this.editor.commit();
     return true;
+  }
+
+  public void copyAssets(String sourceFolder, String destinationFolder) {
+    File source = new File(this.documentsDir,sourceFolder);
+    File destination = new File(this.documentsDir,destinationFolder);
+    try{
+      copyDirectory(source, destination);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void copyDirectory(File sourceDir, File destDir) throws IOException {
+    if (sourceDir.isDirectory()) {
+        if (!destDir.exists()) {
+            destDir.mkdirs();
+        }
+        String[] children = sourceDir.list();
+        for (String child : children) {
+            copyDirectory(new File(sourceDir, child), new File(destDir, child));
+        }
+    } else {
+        InputStream in = new FileInputStream(sourceDir);
+        OutputStream out = new FileOutputStream(destDir);
+        writeFile(in, out);
+    }
+  }
+
+  private void writeFile(InputStream in, OutputStream out) throws IOException {
+    byte[] buffer = new byte[1024];
+    int length;
+    while ((length = in.read(buffer)) > 0) {
+        out.write(buffer, 0, length);
+    }
+    out.flush();
+    out.close();
+    in.close();
   }
 }

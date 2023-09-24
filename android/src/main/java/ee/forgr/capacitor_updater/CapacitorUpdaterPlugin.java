@@ -36,6 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -1400,6 +1401,41 @@ public class CapacitorUpdaterPlugin extends Plugin {
   private void appKilled() {
     Log.d(CapacitorUpdater.TAG, "onActivityDestroyed: all activity destroyed");
     this._checkCancelDelay(true);
+  }
+
+  @PluginMethod
+  public void copyAssets(final PluginCall call) {
+    final String fromFolder = call.getString("fromFolder");
+    final String toFolder = call.getString("toFolder");
+    final String folders = call.getString("folders", "");
+    if (fromFolder == null) {
+      Log.e(CapacitorUpdater.TAG, "copyAssets called without fromFolder");
+      call.reject("copyAssets called without fromFolder");
+      return;
+    }
+    if (toFolder == null) {
+      Log.e(CapacitorUpdater.TAG, "copyAssets called without toFolder");
+      call.reject("copyAssets called without toFolder");
+      return;
+    }
+    ArrayList<String> folderList = new ArrayList<>(Arrays.asList(folders.split(",")));
+
+    final String appId = this.getConfig().getString("appId");
+    final String verDirectory = "versions/";
+    final JSObject result = new JSObject();
+    try {
+      for(int i = 0; i < folderList.size(); i++)
+      {
+        final String toFolderPath = verDirectory + toFolder + "/" + folderList.get(i);
+        final String fromFolderPath = verDirectory + fromFolder + "/" + folderList.get(i);
+        this.implementation.copyAssets(fromFolderPath, toFolderPath);
+        result.put("result", "copied assets");
+      }
+      call.resolve(result);
+    } catch (final Exception e) {
+      Log.e(CapacitorUpdater.TAG, "could not copy assetss", e);
+      call.reject("could not copy assetss", e);
+    }
   }
 
   @Override

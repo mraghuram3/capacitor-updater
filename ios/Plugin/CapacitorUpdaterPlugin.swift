@@ -751,4 +751,34 @@ public class CapacitorUpdaterPlugin: CAPPlugin {
         }
 
     }
+
+    @objc func copyAssets(_ call: CAPPluginCall) {
+        guard let fromFolder = call.getString("fromFolder") else {
+            print("\(self.implementation.TAG) copyAssets called without fromFodler")
+            call.reject("copyAssets called without fromFodler")
+            return
+        }
+        guard let version = call.getString("toFolder") else {
+            print("\(self.implementation.TAG) copyAssets called without toFolder")
+            call.reject("copyAssets called without toFolder")
+            return
+        }
+        guard let folders = call.getString("folders") else {
+            print("\(self.implementation.TAG) copyAssets called without folders")
+            call.reject("copyAssets called without folders")
+            return
+        }
+        let allFolders = folders.components(separatedBy: ",");
+        let res = {};
+        for _folder in allFolders {
+            let _fromFolder = (isBuitIn ? "public" : fromFolder ) + "/" + _folder;
+            let _toFolder = toFolder + "/" + _folder;
+            let _res = self.implementation.copyAssets(fromFolder: _fromFolder, toFolder: _toFolder, isBuitIn: isBuitIn);
+            res[_folder] = _res;
+        }
+        call.resolve([
+            "result": res
+        ])
+
+    }
 }
