@@ -235,7 +235,7 @@ extension CustomError: LocalizedError {
     public var versionBuild: String = ""
     public var customId: String = ""
     public var PLUGIN_VERSION: String = ""
-    public let timeout: Double = 20
+    public var timeout: Double = 20
     public var statsUrl: String = ""
     public var channelUrl: String = ""
     public var appId: String = ""
@@ -894,13 +894,13 @@ extension CustomError: LocalizedError {
         return true
     }
 
-    public func copyAssets(fromFolder: String, toFolder: String, isBuitIn: Bool) -> Bool {
+    public func copyAssets(fromFolder: String, toFolder: String) -> Bool {
 
-        let sourceFolderPath: String = ""
-        let copiedToDest: Bool = false
-        let copiedToDestHot: Bool = false
+        var sourceFolderPath: String = ""
+        var copiedToDest: Bool = false
+        var copiedToDestHot: Bool = false
 
-        let sourceFolderURL = self.documentsDir.appendingPathComponent("versions/" + fromFolder)
+        var sourceFolderURL = self.documentsDir.appendingPathComponent("versions/" + fromFolder)
         sourceFolderPath = sourceFolderURL.path
         print("Error: \(sourceFolderPath)")
 

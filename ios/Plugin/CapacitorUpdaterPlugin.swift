@@ -52,7 +52,7 @@ public class CapacitorUpdaterPlugin: CAPPlugin {
         updateUrl = getConfig().getString("updateUrl", CapacitorUpdaterPlugin.updateUrlDefault)!
         autoUpdate = getConfig().getBoolean("autoUpdate", true)
         appReadyTimeout = getConfig().getInt("appReadyTimeout", 10000)
-        implementation.timeout = getConfig().getInt("responseTimeout", 20)
+        implementation.timeout = Double(getConfig().getInt("responseTimeout", 20))
         resetWhenUpdate = getConfig().getBoolean("resetWhenUpdate", true)
 
         implementation.privateKey = getConfig().getString("privateKey", self.defaultPrivateKey)!
@@ -758,7 +758,7 @@ public class CapacitorUpdaterPlugin: CAPPlugin {
             call.reject("copyAssets called without fromFodler")
             return
         }
-        guard let version = call.getString("toFolder") else {
+        guard let toFolder = call.getString("toFolder") else {
             print("\(self.implementation.TAG) copyAssets called without toFolder")
             call.reject("copyAssets called without toFolder")
             return
@@ -769,11 +769,11 @@ public class CapacitorUpdaterPlugin: CAPPlugin {
             return
         }
         let allFolders = folders.components(separatedBy: ",");
-        let res = {};
+        var res = [String: Bool]()
         for _folder in allFolders {
-            let _fromFolder = (isBuitIn ? "public" : fromFolder ) + "/" + _folder;
+            let _fromFolder = fromFolder + "/" + _folder;
             let _toFolder = toFolder + "/" + _folder;
-            let _res = self.implementation.copyAssets(fromFolder: _fromFolder, toFolder: _toFolder, isBuitIn: isBuitIn);
+            let _res = self.implementation.copyAssets(fromFolder: _fromFolder, toFolder: _toFolder);
             res[_folder] = _res;
         }
         call.resolve([
